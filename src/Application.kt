@@ -47,12 +47,13 @@ fun Application.module(testing: Boolean = false) {
         cookie<User>("USER")
     }
 
+    install(CORS)
+
     val client = HttpClient(Apache) {
     }
 
     routing {
         get("/loginInformation") {
-            call.response.header("Access-Control-Allow-Origin","*")
             try {
                 val loginInformation = call.sessions.get("USER")
                 println((loginInformation as User).userName)
@@ -63,13 +64,11 @@ fun Application.module(testing: Boolean = false) {
         }
 
         get("/logout"){
-            call.response.header("Access-Control-Allow-Origin","*")
             call.sessions.clear("USER")
             call.respond(mapOf("code" to 200))
         }
 
         post("/login") {
-            call.response.header("Access-Control-Allow-Origin","*")
             val data = Gson().fromJson(call.receiveText(), UserLogin::class.java)
             println(data.toString())
             val map = login(data)
@@ -82,7 +81,6 @@ fun Application.module(testing: Boolean = false) {
         }
 
         post("/register") {
-            call.response.header("Access-Control-Allow-Origin","*")
             val qq = (call.sessions.get("MySESSION") as MySession).qq
             println("register -- $qq")
             val data = Gson().fromJson(call.receiveText(), UserNameAndCodeAndPassword::class.java)
@@ -95,7 +93,6 @@ fun Application.module(testing: Boolean = false) {
         }
 
         post("/changePassword"){
-            call.response.header("Access-Control-Allow-Origin","*")
             val data = Gson().fromJson(call.receiveText(), UserChangePassword::class.java)
             println("changePassword -- ${data.QQ}")
             val map = equalCode(data.code,data.QQ)
@@ -106,7 +103,6 @@ fun Application.module(testing: Boolean = false) {
         }
 
         get("/test"){
-            call.response.header("Access-Control-Allow-Origin","*")
             val db = Database.connect(
                 "jdbc:mysql://127.0.0.1:3306/ktorm?serverTimezone=UTC",
                 "com.mysql.cj.jdbc.Driver",
@@ -120,12 +116,10 @@ fun Application.module(testing: Boolean = false) {
         }
 
         options("/MailCode"){
-            call.response.header("Access-Control-Allow-Origin","*")
             call.respond(mapOf("code" to 200))
         }
 
         post("/MailCode") {
-            call.response.header("Access-Control-Allow-Origin","*")
             val data = Gson().fromJson(call.receiveText(), UserQQ::class.java)
             println("MailCode -- ${data.QQ}")
             if (data.type) {
@@ -135,7 +129,6 @@ fun Application.module(testing: Boolean = false) {
         }
 
         get("/{type}/{name}") {
-            call.response.header("Access-Control-Allow-Origin","*")
             val type = call.parameters["type"] ?: ""
             val name = call.parameters["name"] ?: ""
             call.respondFile(File("resources/${type}/${name}"))
