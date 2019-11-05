@@ -11,10 +11,10 @@ import java.util.*
 import kotlin.Exception
 
 val db = Database.connect(
-    "jdbc:mysql://127.0.0.1:3306/ktorm?serverTimezone=UTC",
+    "jdbc:mysql://123.56.224.1888:3306/ktorm?serverTimezone=UTC",
     "com.mysql.cj.jdbc.Driver",
     "root",
-    "root"
+    "Whyzshngrd1@db"
 )
 
 fun saveCode(qq: String, code: String) {
