@@ -5,10 +5,8 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import com.fasterxml.jackson.databind.*
 import com.google.gson.Gson
-import com.zlz.Bean.UserData
-import com.zlz.Bean.UserLogin
-import com.zlz.Bean.UserNameAndCodeAndPassword
-import com.zlz.Bean.UserQQ
+import com.zlz.Bean.*
+import com.zlz.Dao.changePassword
 import com.zlz.Dao.equalCode
 import com.zlz.Dao.registerUser
 import com.zlz.Dao.sendCode
@@ -22,10 +20,14 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.request.receiveText
 import io.ktor.sessions.Sessions
+import io.ktor.sessions.clear
 import io.ktor.sessions.cookie
 import io.ktor.sessions.sessions
+import me.liuwj.ktorm.database.Database
 import me.liuwj.ktorm.dsl.eq
+import me.liuwj.ktorm.dsl.select
 import me.liuwj.ktorm.dsl.update
+import me.liuwj.ktorm.dsl.where
 import java.io.File
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -48,20 +50,25 @@ fun Application.module(testing: Boolean = false) {
     }
 
     routing {
-        get("/loginInformation"){
+        get("/loginInformation") {
             try {
                 val loginInformation = call.sessions.get("USER")
                 println((loginInformation as User).userName)
-            }catch (e: Exception){
-                println(e.toString())
+                call.respond(mapOf("code" to 200))
+            } catch (e: TypeCastException) {
+                call.respond(mapOf("code" to 400))
             }
-            call.respond(mapOf("code" to 200))
         }
 
-        post("/login"){
+        get("logout"){
+            call.sessions.clear("USER")
+            call.respond("code" to 200)
+        }
+
+        post("/login") {
             val data = Gson().fromJson(call.receiveText(), UserLogin::class.java)
             val map = login(data)
-            call.sessions.set("USER",User(data.qq,map["name"]!! as String))
+            call.sessions.set("USER", User(data.qq, map["name"]!! as String))
             map.remove("name")
             call.respond(map)
         }
@@ -73,17 +80,28 @@ fun Application.module(testing: Boolean = false) {
             val map = equalCode(data.code, qq)
             if (map["code"] == 200) {
                 registerUser(UserData(data.userName, qq, data.userPassword))
+                call.sessions.clear("MySESSION")
+            }
+            call.respond(map)
+        }
+
+        post("/changePassword"){
+            val data = Gson().fromJson(call.receiveText(), UserChangePassword::class.java)
+            println("changePassword -- ${data.QQ}")
+            val map = equalCode(data.code,data.QQ)
+            if(map["code"] == 200){
+                changePassword(data)
             }
             call.respond(map)
         }
 
         post("/MailCode") {
-            val qq = Gson().fromJson(call.receiveText(), UserQQ::class.java)
-            println("MailCode -- ${qq.QQ}")
-            if (qq.type) {
-                call.sessions.set("MySESSION", MySession(qq.QQ))
+            val data = Gson().fromJson(call.receiveText(), UserQQ::class.java)
+            println("MailCode -- ${data.QQ}")
+            if (data.type) {
+                call.sessions.set("MySESSION", MySession(data.QQ))
             }
-            call.respond(sendCode(qq))
+            call.respond(sendCode(data))
         }
 
         get("/{type}/{name}") {
@@ -93,7 +111,6 @@ fun Application.module(testing: Boolean = false) {
         }
     }
 }
-
 
 data class MySession(val qq: String)
 data class User(
