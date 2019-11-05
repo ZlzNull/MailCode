@@ -18,6 +18,8 @@ import io.ktor.client.*
 import io.ktor.client.engine.apache.*
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpMethod
 import io.ktor.request.receiveText
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.clear
@@ -47,7 +49,17 @@ fun Application.module(testing: Boolean = false) {
         cookie<User>("USER")
     }
 
-    install(CORS)
+    install(CORS){
+        method(HttpMethod.Options)
+        method(HttpMethod.Get)
+        method(HttpMethod.Post)
+        method(HttpMethod.Put)
+        method(HttpMethod.Delete)
+        method(HttpMethod.Patch)
+        header(HttpHeaders.Authorization)
+        allowCredentials = true
+        anyHost()
+    }
 
     val client = HttpClient(Apache) {
     }
