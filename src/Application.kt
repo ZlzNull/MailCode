@@ -119,6 +119,11 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
+        options("/MailCode"){
+            call.response.header("Access-Control-Allow-Origin","*")
+            call.respond(mapOf("code" to 200))
+        }
+
         post("/MailCode") {
             call.response.header("Access-Control-Allow-Origin","*")
             val data = Gson().fromJson(call.receiveText(), UserQQ::class.java)
