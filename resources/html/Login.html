@@ -142,7 +142,9 @@
                             }
                         },
                         error: function () {
-                            alert("error");
+                            $("#result").modal();
+                            $("#msg").html(data.msg);
+                            document.getElementById("login").disabled = false;
                         }
                     });
                 }

@@ -23,6 +23,7 @@ import io.ktor.sessions.Sessions
 import io.ktor.sessions.clear
 import io.ktor.sessions.cookie
 import io.ktor.sessions.sessions
+import kotlinx.coroutines.plus
 import me.liuwj.ktorm.database.Database
 import me.liuwj.ktorm.dsl.eq
 import me.liuwj.ktorm.dsl.select
@@ -60,16 +61,20 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
-        get("logout"){
+        get("/logout"){
             call.sessions.clear("USER")
-            call.respond("code" to 200)
+            call.respond(mapOf("code" to 200))
         }
 
         post("/login") {
             val data = Gson().fromJson(call.receiveText(), UserLogin::class.java)
+            println(data.toString())
             val map = login(data)
-            call.sessions.set("USER", User(data.qq, map["name"]!! as String))
-            map.remove("name")
+            println(map.toString())
+            if(map["code"] == 200){
+                call.sessions.set("USER", User(data.qq, map["name"]!! as String))
+                map.remove("name")
+            }
             call.respond(map)
         }
 
@@ -93,6 +98,19 @@ fun Application.module(testing: Boolean = false) {
                 changePassword(data)
             }
             call.respond(map)
+        }
+
+        get("/test"){
+            val db = Database.connect(
+                "jdbc:mysql://127.0.0.1:3306/ktorm?serverTimezone=UTC",
+                "com.mysql.cj.jdbc.Driver",
+                "root",
+                "root"
+            )
+            val data = QQtoCode.select(QQtoCode.code,QQtoCode.time).where { QQtoCode.qq eq "100" }
+            data.forEach {
+                println(it.size())
+            }
         }
 
         post("/MailCode") {

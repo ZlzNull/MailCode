@@ -26,41 +26,35 @@ fun saveCode(qq: String, code: String) {
 }
 
 fun equalCode(code: String, qq: String): Map<String, Any> {
-    val data = QQtoCode.select(QQtoCode.code,QQtoCode.time).where { QQtoCode.qq eq qq }
+    val data = QQtoCode.select(QQtoCode.code, QQtoCode.time).where { QQtoCode.qq eq qq }
     data.forEach {
-        return if(it.size() == 0){
-            mapOf("code" to 400, "msg" to "请求出错了，请稍后再试")
-        }else{
-            if(it[QQtoCode.code] == code){
-                if(it[QQtoCode.time]!! - Date().time < 120000){
-                    mapOf("code" to 200)
-                } else {
-                    mapOf("code" to 400, "msg" to "验证码已失效，请重新发送验证码")
-                }
-            }else{
-                mapOf("code" to 400, "msg" to "验证码错误")
+        return if (it[QQtoCode.code] == code) {
+            if (it[QQtoCode.time]!! - Date().time < 120000) {
+                mapOf("code" to 200)
+            } else {
+                mapOf("code" to 400, "msg" to "验证码已失效，请重新发送验证码")
             }
+        } else {
+            mapOf("code" to 400, "msg" to "验证码错误")
         }
+
     }
     return mapOf("code" to 400, "msg" to "请求出错了，请稍后再试")
 }
 
 fun sendCode(qq: UserQQ): Map<String, Any> {
     return if (qq.type) {
-        for (row in UserDataTable.select(UserDataTable.userQQ).where { UserDataTable.userQQ eq qq.QQ}) {
-            if(row.size() == 0){
-                try {
-                    QQtoCode.insert {
-                        it.qq to qq.QQ
-                        it.code to ""
-                        it.time to 0
-                    }
-                } catch (e: SQLIntegrityConstraintViolationException) {
-
-                }
-            }else{
-                return mapOf("code" to 400, "msg" to "该QQ已被注册，请尝试登陆或找回密码")
+        for (row in UserDataTable.select(UserDataTable.userQQ).where { UserDataTable.userQQ eq qq.QQ }) {
+            return mapOf("code" to 400, "msg" to "该QQ已被注册，请尝试登陆或找回密码")
+        }
+        try {
+            QQtoCode.insert {
+                it.qq to qq.QQ
+                it.code to ""
+                it.time to 0
             }
+        } catch (e: SQLIntegrityConstraintViolationException) {
+
         }
         mail(qq)
     } else {
