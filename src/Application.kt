@@ -116,7 +116,6 @@ fun Application.module(testing: Boolean = false) {
             call.respond(map)
         }
 
-
         post("/MailCode") {
             val data = Gson().fromJson(call.receiveText(), UserQQ::class.java)
             println("MailCode -- ${data.QQ}")
