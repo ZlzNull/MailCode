@@ -5,9 +5,7 @@ import com.zlz.Table.UserDataTable
 import me.liuwj.ktorm.dsl.eq
 import me.liuwj.ktorm.dsl.update
 
-val dbc = db
-
-fun changePassword(data: UserChangePassword) {
+fun changePassword(data:UserChangePassword){
     UserDataTable.update {
         it.userPassword to data.newPassword
         where { it.userQQ eq data.QQ }

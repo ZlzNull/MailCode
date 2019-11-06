@@ -10,7 +10,7 @@ import java.sql.SQLIntegrityConstraintViolationException
 import java.util.*
 
 val db = Database.connect(
-    "jdbc:mysql://127.0.0.1:3306/ktorm?serverTimezone=UTC",
+    "jdbc:mysql://123.56.224.1888:3306/ktorm?serverTimezone=UTC",
     "com.mysql.cj.jdbc.Driver",
     "root",
     "Whyzshngrd1@db"
