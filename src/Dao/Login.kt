@@ -7,9 +7,12 @@ import me.liuwj.ktorm.dsl.where
 
 val dbl = db
 
-fun searchUserByQQ(qq:String):Map<String,String>?{
-    for (row in UserDataTable.select(UserDataTable.userPassword,UserDataTable.userName).where { UserDataTable.userQQ eq qq }){
-        return mapOf("password" to row[UserDataTable.userPassword]!!,"name" to row[UserDataTable.userName]!!)
+fun searchUserByQQ(qq: String): Map<String, String>? {
+    for (row in UserDataTable.select(
+        UserDataTable.userPassword,
+        UserDataTable.userName
+    ).where { UserDataTable.userQQ eq qq }) {
+        return mapOf("password" to row[UserDataTable.userPassword]!!, "name" to row[UserDataTable.userName]!!)
     }
     return null
 }

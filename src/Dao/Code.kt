@@ -8,13 +8,12 @@ import me.liuwj.ktorm.database.Database
 import me.liuwj.ktorm.dsl.*
 import java.sql.SQLIntegrityConstraintViolationException
 import java.util.*
-import kotlin.Exception
 
 val db = Database.connect(
     "jdbc:mysql://127.0.0.1:3306/ktorm?serverTimezone=UTC",
     "com.mysql.cj.jdbc.Driver",
     "root",
-    "root"
+    "Whyzshngrd1@db"
 )
 
 fun saveCode(qq: String, code: String) {

@@ -1,9 +1,6 @@
 package com.zlz
 
-import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.routing.*
-import com.fasterxml.jackson.databind.*
+import com.fasterxml.jackson.databind.SerializationFeature
 import com.google.gson.Gson
 import com.zlz.Bean.*
 import com.zlz.Dao.changePassword
@@ -12,24 +9,29 @@ import com.zlz.Dao.registerUser
 import com.zlz.Dao.sendCode
 import com.zlz.Intf.login
 import com.zlz.Table.QQtoCode
-import io.ktor.jackson.*
-import io.ktor.features.*
-import io.ktor.client.*
-import io.ktor.client.engine.apache.*
-import io.ktor.client.request.get
-import io.ktor.client.request.post
+import io.ktor.application.Application
+import io.ktor.application.call
+import io.ktor.application.install
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.apache.Apache
+import io.ktor.features.CORS
+import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
+import io.ktor.jackson.jackson
 import io.ktor.request.receiveText
+import io.ktor.response.respond
+import io.ktor.response.respondFile
+import io.ktor.routing.get
+import io.ktor.routing.options
+import io.ktor.routing.post
+import io.ktor.routing.routing
 import io.ktor.sessions.Sessions
-import io.ktor.sessions.clear
 import io.ktor.sessions.cookie
 import io.ktor.sessions.sessions
-import kotlinx.coroutines.plus
 import me.liuwj.ktorm.database.Database
 import me.liuwj.ktorm.dsl.eq
 import me.liuwj.ktorm.dsl.select
-import me.liuwj.ktorm.dsl.update
 import me.liuwj.ktorm.dsl.where
 import java.io.File
 
@@ -49,7 +51,7 @@ fun Application.module(testing: Boolean = false) {
         cookie<User>("USER")
     }
 
-    install(CORS){
+    install(CORS) {
         method(HttpMethod.Options)
         method(HttpMethod.Get)
         method(HttpMethod.Post)
@@ -75,7 +77,7 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
-        get("/logout"){
+        get("/logout") {
             call.sessions.clear("USER")
             call.respond(mapOf("code" to 200))
         }
@@ -85,7 +87,7 @@ fun Application.module(testing: Boolean = false) {
             println(data.toString())
             val map = login(data)
             println(map.toString())
-            if(map["code"] == 200){
+            if (map["code"] == 200) {
                 call.sessions.set("USER", User(data.qq, map["name"]!! as String))
                 map.remove("name")
             }
@@ -104,31 +106,14 @@ fun Application.module(testing: Boolean = false) {
             call.respond(map)
         }
 
-        post("/changePassword"){
+        post("/changePassword") {
             val data = Gson().fromJson(call.receiveText(), UserChangePassword::class.java)
             println("changePassword -- ${data.QQ}")
-            val map = equalCode(data.code,data.QQ)
-            if(map["code"] == 200){
+            val map = equalCode(data.code, data.QQ)
+            if (map["code"] == 200) {
                 changePassword(data)
             }
             call.respond(map)
-        }
-
-        get("/test"){
-            val db = Database.connect(
-                "jdbc:mysql://127.0.0.1:3306/ktorm?serverTimezone=UTC",
-                "com.mysql.cj.jdbc.Driver",
-                "root",
-                "root"
-            )
-            val data = QQtoCode.select(QQtoCode.code,QQtoCode.time).where { QQtoCode.qq eq "100" }
-            data.forEach {
-                println(it.size())
-            }
-        }
-
-        options("/MailCode"){
-            call.respond(mapOf("code" to 200))
         }
 
         post("/MailCode") {

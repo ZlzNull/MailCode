@@ -4,7 +4,10 @@ import com.zlz.Dao.saveCode
 import java.util.*
 import javax.mail.Message
 import javax.mail.Session
-import javax.mail.internet.*
+import javax.mail.internet.InternetAddress
+import javax.mail.internet.MimeBodyPart
+import javax.mail.internet.MimeMessage
+import javax.mail.internet.MimeMultipart
 
 fun sendMail(receiveMail: String, type: Boolean) {
     val sendMail = "1163452838@qq.com"

@@ -2,7 +2,7 @@ package com.zlz.Table
 
 import me.liuwj.ktorm.schema.*
 
-object UserDataTable: Table<Nothing>("user_data") {
+object UserDataTable : Table<Nothing>("user_data") {
     val userID by int("user_id").primaryKey()
     val userName by varchar("user_name")
     val userPassword by varchar("user_password")
