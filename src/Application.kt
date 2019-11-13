@@ -18,7 +18,13 @@ import io.ktor.features.CORS
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
+import io.ktor.http.content.MultiPartData
+import io.ktor.http.content.PartData
+import io.ktor.http.content.PartData.FileItem
+import io.ktor.http.content.readAllParts
+import io.ktor.http.content.streamProvider
 import io.ktor.jackson.jackson
+import io.ktor.request.receiveMultipart
 import io.ktor.request.receiveText
 import io.ktor.response.respond
 import io.ktor.response.respondFile
@@ -29,11 +35,14 @@ import io.ktor.routing.routing
 import io.ktor.sessions.Sessions
 import io.ktor.sessions.cookie
 import io.ktor.sessions.sessions
+import kotlinx.coroutines.plus
 import me.liuwj.ktorm.database.Database
 import me.liuwj.ktorm.dsl.eq
 import me.liuwj.ktorm.dsl.select
 import me.liuwj.ktorm.dsl.where
 import java.io.File
+import java.io.FileOutputStream
+import java.io.FileWriter
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -128,10 +137,41 @@ fun Application.module(testing: Boolean = false) {
         get("/{type}/{name}") {
             val type = call.parameters["type"] ?: ""
             val name = call.parameters["name"] ?: ""
-            call.respondFile(File("resources/${type}/${name}"))
+            val file = File("resources/${type}/${name}")
+            if (file.exists()) {
+                call.respondFile(file)
+            } else {
+                call.respond(mapOf("code" to 404, "msg" to "找不到该文件，请检查输入！"))
+            }
+        }
+
+        post("/upload") {
+            val part = call.receiveMultipart()
+            val file = part.file("file")
+            val temp = file?.streamProvider?.invoke()?.readBytes()
+            File("resources/images/${file?.originalFileName}").writeBytes(temp!!)
+            println("上传的文件名为：" + file.originalFileName)
+//            val desc = part.value("desc") ?: ""
+//            println(desc)
         }
     }
 }
+
+suspend fun MultiPartData.value(name: String) =
+    try {
+        (readAllParts().filter { it.name == name }[0] as? PartData.FormItem)?.value
+    } catch (e: Exception) {
+        println("Value error is$e")
+        null
+    }
+
+suspend fun MultiPartData.file(name: String) =
+    try {
+        readAllParts().filter { it.name == name }[0] as? FileItem
+    } catch (e: Exception) {
+        println("File error is $e")
+        null
+    }
 
 data class MySession(val qq: String)
 data class User(

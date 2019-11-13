@@ -10,10 +10,10 @@
     <link href="../css/Material_Icons.css" rel="stylesheet">
 </head>
 <body class="page-brand">
-<div class="authpage">
+<div class="authpage b1">
     <div class="container">
         <div class="auth-main auth-row auth-col-one" id="demo">
-            <div class="auth-top auth-row" id="test"><a class="boardtop-left" href="../index.html">
+            <div class="auth-top auth-row b11" id="test"><a class="boardtop-left" href="../index.html">
                 <div>首 页</div>
             </a>
                 <div class="auth-logo"><img src="../images/ic_login.jpg" alt=""></div>
@@ -87,6 +87,60 @@
         </div>
     </div>
 </div>
+
+<div class="authpage b2">
+    <div class="container">
+        <div class="auth-main auth-row auth-col-one" style="padding-bottom: 20px;">
+            <div class="auth-top auth-row b22" style="background: #FF0000">
+                <a class="boardtop-left" href="./index (2).html">
+                    <div>切换账号</div>
+                </a>
+                <div class="auth-logo" style="background: #FF0000;border-radius: 0"><img src="../images/ic_login.png"
+                                                                                         alt=""
+                                                                                         style="border-radius: 0;box-shadow: 0 0 0 0 #afafaf">
+                </div>
+                <a href="#" onClick="change()" class="boardtop-right">
+                    <div id="showLrc">打开歌词</div>
+                </a>
+            </div>
+            <div class="auth-row" id="phone-input">
+                <div class="form-group-label auth-row row-login">
+                    <label class="floating-label" for="phone">手机号</label>
+                    <input class="form-control maxwidth-auth" id="phone" type="text" name="Phone">
+                </div>
+            </div>
+            <div class="auth-row" id="password-input">
+                <div class="form-group-label auth-row row-login">
+                    <label class="floating-label" for="password">密码</label>
+                    <input class="form-control maxwidth-auth" id="password" type="password" name="Password">
+                </div>
+            </div>
+            <div class="btn-auth auth-row" id="login-btn">
+                <button id="login" type="submit" class="btn btn-block btn-brand waves-attach waves-light">确认登录</button>
+            </div>
+            <div class="auth-row">
+                <!--					<select id="musicList" style="display: none">-->
+                <select id="musicList">
+                    <option>未登录</option>
+                </select>
+            </div>
+            <div class="auth-row">
+                <!--					<select id="musicListDetail" style="display: none">-->
+                <select id="musicListDetail">
+                    <option>未登录</option>
+                </select>
+            </div>
+            <div class="auth-row">
+                <img src="../pic/add user.png" id="img" alt="music-img" class="image" style="display: none">
+            </div>
+            <div class="auth-row">
+                <video id="video" controls="controls"
+                       style="display: none;height: 60px;width: 90%;min-width: 200px"></video>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div aria-hidden="true" class="modal modal-va-middle fade" id="result" role="dialog" tabindex="-1">
     <div class="modal-dialog modal-xs">
         <div class="modal-content">
@@ -124,6 +178,26 @@
 </html>
 <script>
     $(document).ready(function () {
+        var b1 = document.querySelector(".b1");
+        var b2 = document.querySelector(".b2");
+        var b11 = document.querySelector(".b11");
+        var b22 = document.querySelector(".b22");
+
+        b11.onclick = function () {
+            if (b2.style.transform === "rotateY(0deg)") {
+                b2.style.transform = "rotateY(-180deg)";
+                window.setTimeout(function () {
+                    b2.hidden = true
+                },499)
+            } else {
+                window.setTimeout(function () {
+                    b2.hidden = false
+                },499)
+                b2.style.transform = "rotateY(0deg)";
+            }
+
+        };
+
         $("#sendSecurityCode").click(function () {
             sendSecurityCode();
         });

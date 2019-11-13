@@ -1,6 +1,11 @@
 .authpage {
 	margin: 60px 0;
 	position: relative;
+
+	/*position: absolute;*/
+	transition: all 1s linear;
+	transform-style: preserve-3d;
+
 }
 
 .authpage .tab-nav li {
