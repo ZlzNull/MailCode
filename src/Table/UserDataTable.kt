@@ -10,4 +10,5 @@ object UserDataTable : Table<Nothing>("user_data") {
     val userQQ by varchar("user_qq").primaryKey()
     val userStatus by boolean("user_status")
     val registerTime by long("register_time")
+    val userAvatar by varchar("user_avatar")
 }

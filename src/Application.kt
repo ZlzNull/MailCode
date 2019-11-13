@@ -7,7 +7,9 @@ import com.zlz.Dao.changePassword
 import com.zlz.Dao.equalCode
 import com.zlz.Dao.registerUser
 import com.zlz.Dao.sendCode
+import com.zlz.Intf.findUserAvatar
 import com.zlz.Intf.login
+import com.zlz.Intf.saveUserAvatar
 import com.zlz.Table.QQtoCode
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -86,6 +88,17 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
+        get("/userAvatar"){
+            try {
+                val loginInformation = call.sessions.get("USER")
+                findUserAvatar((loginInformation as User).qq)
+                println((loginInformation as User).qq)
+                call.respond(mapOf("code" to 200))
+            } catch (e: TypeCastException) {
+                call.respond(mapOf("code" to 400))
+            }
+        }
+
         get("/logout") {
             call.sessions.clear("USER")
             call.respond(mapOf("code" to 200))
@@ -145,12 +158,26 @@ fun Application.module(testing: Boolean = false) {
             }
         }
 
-        post("/upload") {
-            val part = call.receiveMultipart()
-            val file = part.file("file")
-            val temp = file?.streamProvider?.invoke()?.readBytes()
-            File("resources/images/${file?.originalFileName}").writeBytes(temp!!)
-            println("上传的文件名为：" + file.originalFileName)
+        post("/uploadUserAvatar") {
+            try {
+                val loginInformation = call.sessions.get("USER")
+                println((loginInformation as User).qq)
+                val part = call.receiveMultipart()
+                val file = part.file("file")
+                if(file == null){
+                    call.respond(mapOf("code" to 404,"msg" to "头像上传出错了，请尝试重新上传！"))
+                }else{
+                    saveUserAvatar(file,(loginInformation as User).qq)
+                }
+                call.respond(mapOf("code" to 200,"msg" to "头像上传成功！"))
+            } catch (e: TypeCastException) {
+                call.respond(mapOf("code" to 400,"msg" to "未知错误，请尝试重新上传！"))
+            }
+
+//            saveUserAvatar(file?.streamProvider?.invoke()?.readBytes())
+//            val temp = file?.streamProvider?.invoke()?.readBytes()
+//            File("resources/userAvatar/${file?.originalFileName}").writeBytes(temp!!)
+//            println("上传的文件名为：" + file.originalFileName)
 //            val desc = part.value("desc") ?: ""
 //            println(desc)
         }
